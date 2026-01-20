@@ -18,10 +18,11 @@ export const CanvasProvider = ({ children }) => {
     const [nodes, setNodes] = useState([]);
     const [edges, setEdges] = useState([]);
     const [selection, setSelection] = useState([]); // Array of Node IDs
+    const [selectedEdge, setSelectedEdge] = useState(null); // ID of selected edge
 
     // Interaction State
     const [linkingSource, setLinkingSource] = useState(null); // { nodeId, handleType, x, y }
-    const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 }); // For live connection line
+    const [cursorPos, setCursorPos] = useState({ x: 0, y: 0, worldX: 0, worldY: 0 }); // For live connection line (screen + world coords)
 
     const zoomTo = useCallback((scale) => {
         setTransform(prev => {
@@ -36,10 +37,17 @@ export const CanvasProvider = ({ children }) => {
 
     const selectNode = useCallback((id, multi = false) => {
         setSelection(prev => multi ? [...prev, id] : [id]);
+        setSelectedEdge(null); // Deselect edge when selecting node
+    }, []);
+
+    const selectEdge = useCallback((id) => {
+        setSelectedEdge(id);
+        setSelection([]); // Deselect nodes when selecting edge
     }, []);
 
     const deselectAll = useCallback(() => {
         setSelection([]);
+        setSelectedEdge(null);
     }, []);
 
     const addNode = useCallback((node) => {
@@ -53,6 +61,27 @@ export const CanvasProvider = ({ children }) => {
             return [...prev, edge];
         });
     }, []);
+
+    const deleteNode = useCallback((nodeId) => {
+        setNodes(prev => prev.filter(n => n.id !== nodeId));
+        // Also remove connected edges
+        setEdges(prev => prev.filter(e => e.source !== nodeId && e.target !== nodeId));
+        // Deselect if this node was selected
+        setSelection(prev => prev.filter(id => id !== nodeId));
+    }, []);
+
+    const deleteNodes = useCallback((nodeIds) => {
+        setNodes(prev => prev.filter(n => !nodeIds.includes(n.id)));
+        // Also remove connected edges
+        setEdges(prev => prev.filter(e => !nodeIds.includes(e.source) && !nodeIds.includes(e.target)));
+        // Deselect deleted nodes
+        setSelection(prev => prev.filter(id => !nodeIds.includes(id)));
+    }, []);
+
+    const deleteEdge = useCallback((edgeId) => {
+        setEdges(prev => prev.filter(e => e.id !== edgeId));
+        if (selectedEdge === edgeId) setSelectedEdge(null);
+    }, [selectedEdge]);
 
     // Use this for linking updates
     const startLinking = useCallback((sourceParams) => {
@@ -87,9 +116,14 @@ export const CanvasProvider = ({ children }) => {
         deselectAll,
         addNode,
         addEdge,
+        deleteNode,
+        deleteNodes,
+        deleteEdge,
         startLinking,
         stopLinking,
-        screenToCanvas
+        screenToCanvas,
+        selectedEdge,
+        selectEdge
     };
 
     return (

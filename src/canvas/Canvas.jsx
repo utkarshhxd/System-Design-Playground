@@ -6,7 +6,7 @@ import ServiceNode from '../components/nodes/ServiceNode';
 import ConnectionLayer from './ConnectionLayer';
 
 const Canvas = () => {
-    const { transform, setTransform, zoomTo, nodes, addNode, screenToCanvas, selection, setCursorPos, linkingSource, stopLinking } = useCanvas();
+    const { transform, setTransform, zoomTo, nodes, addNode, screenToCanvas, selection, setCursorPos, linkingSource, stopLinking, deselectAll } = useCanvas();
     const containerRef = useRef(null);
     const [isPanning, setIsPanning] = useState(false);
     const lastMousePos = useRef({ x: 0, y: 0 });
@@ -15,6 +15,7 @@ const Canvas = () => {
     const handleDrop = (e) => {
         e.preventDefault();
         const type = e.dataTransfer.getData('application/nodeType');
+        const label = e.dataTransfer.getData('application/nodeLabel');
         if (!type) return;
 
         if (containerRef.current) {
@@ -27,7 +28,7 @@ const Canvas = () => {
                 type,
                 x: x - 80, // Center horizontally
                 y: y - 30, // Center vertically
-                data: { title: 'New ' + type.charAt(0).toUpperCase() + type.slice(1) }
+                data: { title: label || (type.charAt(0).toUpperCase() + type.slice(1)) }
             });
         }
     };
@@ -72,6 +73,9 @@ const Canvas = () => {
         if (e.target.closest('.node-wrapper') || e.target.closest('.port-handle')) return;
 
         if (e.button === 1 || e.button === 0) {
+            if (!isPanning) {
+                deselectAll();
+            }
             setIsPanning(true);
             lastMousePos.current = { x: e.clientX, y: e.clientY };
             e.currentTarget.setPointerCapture(e.pointerId);
@@ -79,8 +83,15 @@ const Canvas = () => {
     };
 
     const handlePointerMove = (e) => {
-        // Update cursor pos for linking
-        setCursorPos({ x: e.clientX, y: e.clientY });
+        // Update cursor pos for linking (both screen and world coordinates)
+        if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const worldX = (e.clientX - rect.left - transform.x) / transform.k;
+            const worldY = (e.clientY - rect.top - transform.y) / transform.k;
+            setCursorPos({ x: e.clientX, y: e.clientY, worldX, worldY });
+        } else {
+            setCursorPos({ x: e.clientX, y: e.clientY, worldX: 0, worldY: 0 });
+        }
 
         if (!isPanning) return;
 

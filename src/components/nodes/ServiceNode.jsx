@@ -1,19 +1,84 @@
 import React from 'react';
-import { Server, Database, Globe, Layers, HardDrive, LayoutGrid, Cloud, Shield, Box, Zap, Route } from 'lucide-react';
+import {
+    Server, Database, Globe, Layers, HardDrive, LayoutGrid, Cloud, Shield, Box, Zap, Route,
+    Smartphone, ShieldAlert, Cpu, Calculator, Clock, File, Archive, Save, List,
+    Radio, Lock, Key, Router, Gauge, Book, TrendingUp, Copy, Shuffle, ToggleRight,
+    FileText, BarChart, Activity, Bell, Settings, GitBranch, Container, Ship,
+    Search, ListStart, PieChart, Mail, CreditCard, Link as LinkIcon
+} from 'lucide-react';
 import { useCanvas } from '../../context/CanvasContext';
 
 const icons = {
+    // 1. Client
     client: Globe,
-    server: Server,
-    database: Database,
-    loadbalancer: Layers,
-    cache: HardDrive,
-    queue: LayoutGrid,
-    cdn: Cloud,
-    firewall: Shield,
-    storage: Box,
-    stream: Zap,
+    mobile: Smartphone,
+
+    // 2. Networking
     dns: Route,
+    cdn: Cloud,
+    loadbalancer: Layers,
+    firewall: Shield,
+    waf: ShieldAlert,
+
+    // 3. Application
+    server: Server,
+    microservice: Cpu,
+    worker: Calculator,
+    scheduler: Clock,
+
+    // 4. Data Storage
+    database: Database,
+    storage: Box,
+    filestorage: File,
+    warehouse: Archive,
+    datalake: Layers, // Reusing Layers or maybe Archive
+    backup: Save,
+
+    // 5. Caching
+    cache: HardDrive,
+    cdncache: Zap,
+
+    // 6. Async & Messaging
+    queue: LayoutGrid,
+    taskqueue: List,
+    pubsub: Radio,
+    stream: Zap,
+
+    // 7. Security & Access
+    auth: Lock,
+    authorization: Key,
+    gateway: Router,
+    ratelimiter: Gauge,
+    secrets: Key,
+
+    // 8. Reliability & Scaling
+    registry: Book,
+    autoscaler: TrendingUp,
+    replica: Copy,
+    failover: Shuffle,
+    circuitbreaker: ToggleRight,
+
+    // 9. Observability
+    logging: FileText,
+    metrics: BarChart,
+    tracing: Activity,
+    alerts: Bell,
+
+    // 11. Deployment & Ops
+    config: Settings,
+    cicd: GitBranch,
+    container: Container,
+    orchestrator: Ship,
+
+    // 12. Search & Analytics
+    search: Search,
+    indexing: ListStart,
+    analytics: PieChart,
+
+    // 13. External Services
+    notification: Mail,
+    payment: CreditCard,
+    external: LinkIcon,
 };
 
 const ServiceNode = ({ id, type, title, subtitle }) => {

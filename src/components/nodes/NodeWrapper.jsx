@@ -1,10 +1,42 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { useCanvas } from '../../context/CanvasContext';
+import { X, Trash2 } from 'lucide-react';
 
 const NodeWrapper = ({ id, x, y, isSelected, children }) => {
-    const { selectNode, setNodes, transform } = useCanvas();
+    const { selectNode, setNodes, transform, deleteNode } = useCanvas();
+    const [contextMenu, setContextMenu] = useState(null);
+    const wrapperRef = useRef(null);
+
+    // Close context menu on outside click
+    useEffect(() => {
+        if (!contextMenu) return;
+        const handleClickOutside = (e) => {
+            if (contextMenu && !wrapperRef.current?.contains(e.target)) {
+                setContextMenu(null);
+            }
+        };
+        window.addEventListener('click', handleClickOutside);
+        return () => window.removeEventListener('click', handleClickOutside);
+    }, [contextMenu]);
+
+    const handleContextMenu = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setContextMenu({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleDelete = (e) => {
+        e.stopPropagation();
+        deleteNode(id);
+        setContextMenu(null);
+    };
 
     const handlePointerDown = (e) => {
+        // Don't start drag if clicking on delete button
+        if (e.target.closest('.node-delete-btn')) {
+            return;
+        }
+
         e.stopPropagation(); // Prevent canvas pan
 
         // Select
@@ -49,29 +81,80 @@ const NodeWrapper = ({ id, x, y, isSelected, children }) => {
     };
 
     return (
-        <div
-            onPointerDown={handlePointerDown}
-            style={{
-                position: 'absolute',
-                transform: `translate(${x}px, ${y}px)`,
-                cursor: 'grab',
-                userSelect: 'none',
-                zIndex: isSelected ? 'var(--z-node) + 1' : 'var(--z-node)',
-                touchAction: 'none',
-            }}
-        >
-            <div style={{
-                position: 'relative',
-                borderRadius: '8px',
-                boxShadow: isSelected
-                    ? '0 0 0 2px var(--accent-primary), 0 8px 16px rgba(0,0,0,0.5)'
-                    : '0 2px 4px rgba(0,0,0,0.2), 0 0 0 1px var(--border-subtle)',
-                backgroundColor: 'var(--bg-node)',
-                transition: 'box-shadow 0.1s ease',
-            }}>
-                {children}
+        <>
+            <div
+                ref={wrapperRef}
+                onPointerDown={handlePointerDown}
+                onContextMenu={handleContextMenu}
+                style={{
+                    position: 'absolute',
+                    transform: `translate(${x}px, ${y}px)`,
+                    cursor: 'grab',
+                    userSelect: 'none',
+                    zIndex: isSelected ? 'var(--z-node) + 1' : 'var(--z-node)',
+                    touchAction: 'none',
+                }}
+            >
+                <div style={{
+                    position: 'relative',
+                    borderRadius: '8px',
+                    boxShadow: isSelected
+                        ? '0 0 0 2px var(--accent-primary), 0 8px 16px rgba(0,0,0,0.5)'
+                        : '0 2px 4px rgba(0,0,0,0.2), 0 0 0 1px var(--border-subtle)',
+                    backgroundColor: 'var(--bg-node)',
+                    transition: 'box-shadow 0.1s ease',
+                }}>
+
+                    {children}
+                </div>
             </div>
-        </div>
+
+            {/* Context Menu */}
+            {contextMenu && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        left: contextMenu.x,
+                        top: contextMenu.y,
+                        backgroundColor: 'var(--bg-panel)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                        zIndex: 'var(--z-overlay)',
+                        minWidth: '150px',
+                        padding: '4px',
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <button
+                        onClick={handleDelete}
+                        style={{
+                            width: '100%',
+                            padding: '8px 12px',
+                            backgroundColor: 'transparent',
+                            border: 'none',
+                            borderRadius: '4px',
+                            color: 'var(--danger)',
+                            fontSize: '13px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            transition: 'background 0.1s',
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                    >
+                        <Trash2 size={14} />
+                        Delete Node
+                    </button>
+                </div>
+            )}
+        </>
     );
 };
 

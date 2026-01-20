@@ -3,7 +3,7 @@ import { useCanvas } from '../../context/CanvasContext';
 import { Trash2, Copy, X } from 'lucide-react';
 
 const PropertiesPanel = () => {
-    const { selection, nodes, setNodes, deselectAll, edges, setEdges } = useCanvas();
+    const { selection, nodes, setNodes, deselectAll, deleteNode, selectedEdge, deleteEdge } = useCanvas();
     const [localData, setLocalData] = useState(null);
 
     const selectedNodeId = selection.length > 0 ? selection[0] : null;
@@ -16,8 +16,65 @@ const PropertiesPanel = () => {
         } else {
             setLocalData(null);
         }
-    }, [selectedNodeId, selectedNode]); // depend on selectedNode to refresh if external update? 
-    // Actually better to just depend on ID and update local on ID change.
+    }, [selectedNodeId, selectedNode]);
+
+    // Handle Edge Selection
+    if (selectedEdge) {
+        return (
+            <aside style={{
+                width: '300px',
+                backgroundColor: 'var(--bg-panel)',
+                borderLeft: '1px solid var(--border-subtle)',
+                display: 'flex',
+                flexDirection: 'column',
+                zIndex: 'var(--z-ui)',
+            }}>
+                <div style={{ padding: '16px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <h2 style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)' }}>
+                        Connection
+                    </h2>
+                    <button
+                        onClick={() => deselectAll()}
+                        style={{ background: 'transparent', border: 'none', color: 'var(--text-dim)', cursor: 'pointer' }}
+                    >
+                        <X size={14} />
+                    </button>
+                </div>
+
+                <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label style={{ fontSize: '11px', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ID</label>
+                        <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                            {selectedEdge}
+                        </div>
+                    </div>
+
+                    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+                        <button
+                            onClick={() => {
+                                deleteEdge(selectedEdge);
+                                deselectAll();
+                            }}
+                            style={{
+                                flex: 1,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                                padding: '8px',
+                                borderRadius: '6px',
+                                border: '1px solid var(--danger)',
+                                background: 'rgba(239, 68, 68, 0.1)',
+                                color: 'var(--danger)',
+                                fontSize: '13px',
+                                cursor: 'pointer',
+                                transition: 'background 0.2s'
+                            }}
+                        >
+                            <Trash2 size={14} /> Delete Connection
+                        </button>
+                    </div>
+                </div>
+            </aside>
+        );
+    }
 
     if (!selectedNode || !localData) {
         return (
@@ -35,7 +92,7 @@ const PropertiesPanel = () => {
                     </h2>
                 </div>
                 <div style={{ padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, color: 'var(--text-dim)', fontSize: '13px' }}>
-                    Select a node to view details
+                    Select a node or connection to view details
                 </div>
             </aside>
         );
@@ -47,9 +104,7 @@ const PropertiesPanel = () => {
     };
 
     const handleDelete = () => {
-        setNodes(prev => prev.filter(n => n.id !== selectedNodeId));
-        // Also remove connected edges
-        setEdges(prev => prev.filter(e => e.source !== selectedNodeId && e.target !== selectedNodeId)); // Assuming setEdges is exposed
+        deleteNode(selectedNodeId);
         deselectAll();
     };
 
