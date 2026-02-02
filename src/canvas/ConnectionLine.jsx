@@ -53,12 +53,13 @@ const ConnectionLine = ({ sourceX, sourceY, targetX, targetY, sourceDirection, t
             <path
                 d={path}
                 fill="none"
-                stroke={isSelected ? 'var(--accent-primary)' : 'var(--text-dim)'}
-                strokeWidth={isSelected ? 3 : 2}
+                stroke={isSelected ? 'var(--accent-primary)' : 'var(--border-active)'}
+                strokeWidth={isSelected ? 2 : 1.5}
                 style={{
-                    transition: 'stroke 0.2s',
-                    opacity: isSelected ? 1 : 0.6,
-                    pointerEvents: 'none'
+                    transition: 'stroke 0.2s, stroke-width 0.2s',
+                    opacity: isSelected ? 1 : 0.8,
+                    pointerEvents: 'none',
+                    filter: isSelected ? 'drop-shadow(0 0 3px var(--accent-glow))' : 'none'
                 }}
                 markerEnd={isSelected ? "url(#arrowhead-active)" : "url(#arrowhead)"}
             />

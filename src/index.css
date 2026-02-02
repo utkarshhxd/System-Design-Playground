@@ -1,26 +1,43 @@
 :root {
-  /* Strict Dark Palette */
-  --bg-canvas: #0f1012; /* Deep graphite */
-  --bg-panel: #18191b; /* Slightly lighter for panels */
-  --bg-node: #1e2023; /* Node background */
-  
-  --border-subtle: #2a2b2e;
-  --border-active: #4a4b50;
+  /* Premium Dark Palette */
+  --bg-canvas: #09090b;
+  /* Zinc 950 */
+  --bg-panel: #18181b;
+  /* Zinc 900 */
+  --bg-node: rgba(24, 24, 27, 0.8);
+  /* Dark base for gradient */
+  --bg-node-gradient: linear-gradient(145deg, rgba(39, 39, 42, 0.9) 0%, rgba(24, 24, 27, 0.95) 100%);
 
-  --text-primary: #e0e0e0;
-  --text-secondary: #a0a0a0;
-  --text-dim: #606060;
+  --border-subtle: #27272a;
+  --border-active: #3f3f46;
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-gradient-active: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
 
-  --accent-primary: #3b82f6; /* Professional Blue */
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-dim: #52525b;
+
+  --accent-primary: #3b82f6;
+  --accent-secondary: #8b5cf6;
+  /* Violet addition for gradients */
   --accent-hover: #2563eb;
-  --accent-glow: rgba(59, 130, 246, 0.15); /* Subtle glow */
+
+  --accent-glow: rgba(59, 130, 246, 0.4);
+  --accent-glass: rgba(59, 130, 246, 0.15);
 
   --danger: #ef4444;
   --success: #22c55e;
   --warning: #f59e0b;
 
   /* Grid */
-  --grid-dot: #2a2b2e;
+  --grid-dot: #3f3f46;
+  /* Slightly brighter for depth */
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-glass: 0 8px 32px -4px rgba(0, 0, 0, 0.5);
+  /* Deeper shadow */
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 4px rgba(59, 130, 246, 0.3);
 
   /* Z-Index */
   --z-canvas: 0;
@@ -40,7 +57,8 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   background-color: var(--bg-canvas);
   color: var(--text-primary);
-  overflow: hidden; /* Prevent body scroll, canvas handles it */
+  overflow: hidden;
+  /* Prevent body scroll, canvas handles it */
   -webkit-font-smoothing: antialiased;
 }
 

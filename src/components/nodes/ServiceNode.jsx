@@ -5,7 +5,7 @@ import { useCanvas } from '../../context/CanvasContext';
 const ServiceNode = ({ id, type, selected, isConnectable }) => {
     // Determine icon and label
     // If it's a custom node, node data might have a specific icon name
-    const { nodes } = useCanvas();
+    const { nodes, startLinking, stopLinking, addEdge, linkingSource } = useCanvas();
     const node = nodes.find(n => n.id === id);
 
     // Default label based on type
@@ -53,73 +53,144 @@ const ServiceNode = ({ id, type, selected, isConnectable }) => {
         <div style={{
             width: `${width}px`,
             height: `${height}px`,
-            backgroundColor: 'var(--bg-node)',
-            border: `1px solid ${selected ? 'var(--accent-primary)' : 'var(--border-subtle)'}`,
-            borderRadius: '8px',
-            boxShadow: selected ? '0 0 0 2px rgba(99, 102, 241, 0.2)' : '0 2px 4px rgba(0,0,0,0.1)',
+            background: selected ? 'var(--bg-node-gradient)' : 'var(--bg-node)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: `1px solid transparent`, // Placeholder for gradient border logic if needed, or keeping it subtle
+            borderColor: selected ? 'var(--accent-primary)' : 'var(--border-glass)',
+            borderRadius: '12px',
+            boxShadow: selected ? 'var(--shadow-glow), inset 0 0 20px var(--accent-glass)' : 'var(--shadow-glass)',
             display: 'flex',
             alignItems: 'center',
-            padding: '12px',
-            gap: '12px',
+            padding: '12px 16px',
+            gap: '14px',
             position: 'relative',
-            transition: 'all 0.2s ease',
-            cursor: 'grab'
+            transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+            cursor: 'grab',
+            zIndex: selected ? 20 : 10 // Bring selected to front
         }}>
             {/* Input Handle */}
-            <div className="react-flow__handle react-flow__handle-left" style={{
-                left: '-6px',
-                width: '10px',
-                height: '10px',
-                backgroundColor: 'var(--text-secondary)',
-                borderRadius: '50%',
-                border: '2px solid var(--bg-node)'
-            }} />
+            <div
+                className="react-flow__handle react-flow__handle-left"
+                style={{
+                    position: 'absolute',
+                    left: '-5px',
+                    width: '10px',
+                    height: '10px',
+                    backgroundColor: 'var(--bg-canvas)',
+                    borderRadius: '50%',
+                    border: '2px solid var(--text-secondary)',
+                    cursor: 'crosshair',
+                    transition: 'all 0.2s ease',
+                    zIndex: 20
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--accent-primary)';
+                    e.currentTarget.style.transform = 'scale(1.2)';
+                    e.currentTarget.style.backgroundColor = 'var(--accent-primary)';
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--text-secondary)';
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.backgroundColor = 'var(--bg-canvas)';
+                }}
+                onPointerUp={(e) => {
+                    e.stopPropagation();
+                    if (linkingSource && linkingSource.nodeId !== id && linkingSource.handleType === 'source') {
+                        addEdge({
+                            id: crypto.randomUUID(),
+                            source: linkingSource.nodeId,
+                            target: id,
+                        });
+                        stopLinking();
+                    }
+                }}
+            />
 
             {/* Icon */}
             <div style={{
+                color: selected ? '#fff' : 'var(--text-secondary)',
+                // Subtle colored background behind icon for 'pop'
+                background: selected ? 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))' : 'rgba(255,255,255,0.03)',
                 width: '36px',
                 height: '36px',
-                backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                borderRadius: '6px',
+                borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'var(--accent-primary)',
-                flexShrink: 0
+                boxShadow: selected ? '0 4px 12px rgba(59, 130, 246, 0.4)' : 'none',
+                transition: 'all 0.3s ease',
             }}>
-                <IconComponent size={18} />
+                <IconComponent size={20} strokeWidth={selected ? 2 : 1.5} />
             </div>
 
             {/* Content */}
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
                 <div style={{
-                    fontSize: '12px',
-                    fontWeight: 600,
+                    fontSize: '13px',
+                    fontWeight: 500,
                     color: 'var(--text-primary)',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
-                    textOverflow: 'ellipsis'
+                    textOverflow: 'ellipsis',
+                    letterSpacing: '0.01em'
                 }}>
                     {label}
                 </div>
                 <div style={{
                     fontSize: '10px',
                     color: 'var(--text-secondary)',
-                    marginTop: '2px'
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    fontWeight: 500
                 }}>
-                    {type.toUpperCase()}
+                    {type}
                 </div>
             </div>
 
             {/* Output Handle */}
-            <div className="react-flow__handle react-flow__handle-right" style={{
-                right: '-6px',
-                width: '10px',
-                height: '10px',
-                backgroundColor: 'var(--text-secondary)',
-                borderRadius: '50%',
-                border: '2px solid var(--bg-node)'
-            }} />
+            <div
+                className="react-flow__handle react-flow__handle-right"
+                style={{
+                    position: 'absolute',
+                    right: '-5px',
+                    width: '10px',
+                    height: '10px',
+                    backgroundColor: 'var(--bg-canvas)',
+                    borderRadius: '50%',
+                    border: '2px solid var(--text-secondary)',
+                    cursor: 'crosshair',
+                    transition: 'all 0.2s ease',
+                    zIndex: 20
+                }}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--accent-primary)';
+                    e.currentTarget.style.transform = 'scale(1.2)';
+                    e.currentTarget.style.backgroundColor = 'var(--accent-primary)';
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--text-secondary)';
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.backgroundColor = 'var(--bg-canvas)';
+                }}
+                onPointerDown={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    // Calculate handle position (Right side)
+                    // Node is at node.x, node.y.
+                    // Handle is at node.x + 160, node.y + 30
+                    const handleX = node.x + 160;
+                    const handleY = node.y + 30;
+
+                    startLinking({
+                        nodeId: id,
+                        handleType: 'source',
+                        x: handleX,
+                        y: handleY
+                    });
+                }}
+            />
         </div>
     );
 };

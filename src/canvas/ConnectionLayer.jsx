@@ -11,11 +11,11 @@ const ConnectionLayer = () => {
         if (!node) return { x: 0, y: 0 };
 
         // Hardcoded dimensions matching ServiceNode
-        // Width 160, Vertical center is roughly +40
+        // Width 160, Vertical center is roughly +30
         if (handleType === 'source') {
-            return { x: node.x + 160, y: node.y + 40 }; // Right side
+            return { x: node.x + 160, y: node.y + 30 }; // Right side
         } else {
-            return { x: node.x, y: node.y + 40 }; // Left side
+            return { x: node.x, y: node.y + 30 }; // Left side
         }
     };
 

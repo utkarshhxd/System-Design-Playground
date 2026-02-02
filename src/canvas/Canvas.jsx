@@ -159,6 +159,9 @@ const Canvas = () => {
         if (e.currentTarget.hasPointerCapture(e.pointerId)) {
             e.currentTarget.releasePointerCapture(e.pointerId);
         }
+        if (linkingSource) {
+            stopLinking();
+        }
     };
 
     useEffect(() => {
@@ -250,7 +253,7 @@ const Canvas = () => {
                     height: 100000,
                     backgroundImage: 'radial-gradient(var(--grid-dot) 1px, transparent 1px)',
                     backgroundSize: '40px 40px',
-                    opacity: 0.3,
+                    opacity: 0.4,
                     pointerEvents: 'none',
                 }} />
 
