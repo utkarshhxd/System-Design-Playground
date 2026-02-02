@@ -1,21 +1,65 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Minus, Plus, Maximize, RotateCcw } from 'lucide-react';
+import { Minus, Plus, Maximize, RotateCcw, Download, Upload } from 'lucide-react';
 import { useCanvas } from '../context/CanvasContext';
 import NodeWrapper from '../components/nodes/NodeWrapper';
 import ServiceNode from '../components/nodes/ServiceNode';
 import ConnectionLayer from './ConnectionLayer';
 
 const Canvas = () => {
-    const { transform, setTransform, zoomTo, nodes, addNode, screenToCanvas, selection, setCursorPos, linkingSource, stopLinking, deselectAll } = useCanvas();
+    const { transform, setTransform, zoomTo, nodes, setNodes, edges, setEdges, addNode, screenToCanvas, selection, setCursorPos, linkingSource, stopLinking, deselectAll } = useCanvas();
     const containerRef = useRef(null);
+    const fileInputRef = useRef(null);
     const [isPanning, setIsPanning] = useState(false);
     const lastMousePos = useRef({ x: 0, y: 0 });
+
+    const handleSave = () => {
+        const data = {
+            nodes,
+            edges,
+            transform
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `system-design-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleImportClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleImportFile = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const data = JSON.parse(event.target.result);
+                if (data.nodes) setNodes(data.nodes);
+                if (data.edges) setEdges(data.edges);
+                if (data.transform) setTransform(data.transform);
+            } catch (error) {
+                console.error("Failed to parse imported file:", error);
+                alert("Invalid file format");
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = ''; // Reset input so same file can be selected again
+    };
 
     // Handle Drop from Sidebar
     const handleDrop = (e) => {
         e.preventDefault();
         const type = e.dataTransfer.getData('application/nodeType');
         const label = e.dataTransfer.getData('application/nodeLabel');
+        const iconName = e.dataTransfer.getData('application/iconName');
+
         if (!type) return;
 
         if (containerRef.current) {
@@ -28,7 +72,10 @@ const Canvas = () => {
                 type,
                 x: x - 80, // Center horizontally
                 y: y - 30, // Center vertically
-                data: { title: label || (type.charAt(0).toUpperCase() + type.slice(1)) }
+                data: {
+                    title: label || (type.charAt(0).toUpperCase() + type.slice(1)),
+                    iconName: iconName || null
+                }
             });
         }
     };
@@ -171,6 +218,16 @@ const Canvas = () => {
                 <UtilityButton icon={<Plus size={14} />} onClick={() => zoomTo(transform.k * 1.1)} />
                 <div style={{ width: '1px', height: '16px', backgroundColor: 'var(--border-subtle)', margin: '0 4px' }} />
                 <UtilityButton icon={<RotateCcw size={14} />} onClick={() => setTransform({ x: 0, y: 0, k: 1 })} />
+                <div style={{ width: '1px', height: '16px', backgroundColor: 'var(--border-subtle)', margin: '0 4px' }} />
+                <UtilityButton icon={<Download size={14} />} onClick={handleSave} />
+                <UtilityButton icon={<Upload size={14} />} onClick={handleImportClick} />
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
+                    accept=".json"
+                    onChange={handleImportFile}
+                />
             </div>
 
             {/* World Container - Transformed */}
