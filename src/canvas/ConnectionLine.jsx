@@ -61,7 +61,6 @@ const ConnectionLine = ({ sourceX, sourceY, targetX, targetY, sourceDirection, t
                     pointerEvents: 'none',
                     filter: isSelected ? 'drop-shadow(0 0 3px var(--accent-glow))' : 'none'
                 }}
-                markerEnd={isSelected ? "url(#arrowhead-active)" : "url(#arrowhead)"}
             />
         </g>
     );

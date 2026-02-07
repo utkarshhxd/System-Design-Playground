@@ -1,15 +1,48 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { ICONS, getIcon } from '../../utils/icons';
 import { useCanvas } from '../../context/CanvasContext';
 
 const ServiceNode = ({ id, type, selected, isConnectable }) => {
     // Determine icon and label
     // If it's a custom node, node data might have a specific icon name
-    const { nodes, startLinking, stopLinking, addEdge, linkingSource } = useCanvas();
+    const { nodes, startLinking, stopLinking, addEdge, linkingSource, updateNodeDimensions } = useCanvas();
     const node = nodes.find(n => n.id === id);
+    const nodeRef = useRef(null);
+
+    // Measure and report dimensions
+    React.useLayoutEffect(() => {
+        if (nodeRef.current) {
+            const { offsetWidth, offsetHeight } = nodeRef.current;
+            updateNodeDimensions(id, { width: offsetWidth, height: offsetHeight });
+        }
+    }, [id, updateNodeDimensions, node?.data?.label, type]); // Dependencies that might change size
+
+    // Helper to format labels
+    const formatLabel = (str) => {
+        const SPECIAL_CASES = {
+            'loadbalancer': 'Load Balancer',
+            'taskqueue': 'Task Queue',
+            'filestorage': 'File Storage',
+            'pubsub': 'Pub/Sub',
+            'ratelimiter': 'Rate Limiter',
+            'circuitbreaker': 'Circuit Breaker',
+            'apigateway': 'API Gateway',
+            'datalake': 'Data Lake',
+            'cdncache': 'CDN Cache',
+            'dns': 'DNS',
+            'cdn': 'CDN',
+            'waf': 'WAF',
+            'cicd': 'CI/CD'
+        };
+
+        if (SPECIAL_CASES[str]) return SPECIAL_CASES[str];
+
+        // Default: Capitalize first letter
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    };
 
     // Default label based on type
-    let label = node?.data?.label || type.charAt(0).toUpperCase() + type.slice(1);
+    let label = node?.data?.label || formatLabel(type);
 
     // Icon resolution
     // 1. Check if node data has an explicit iconName (for custom components)
@@ -50,8 +83,9 @@ const ServiceNode = ({ id, type, selected, isConnectable }) => {
     const height = 60;
 
     return (
-        <div style={{
-            width: `${width}px`,
+        <div ref={nodeRef} style={{
+            minWidth: '160px',
+            width: 'auto',
             height: `${height}px`,
             background: selected ? 'var(--bg-node-gradient)' : 'var(--bg-node)',
             backdropFilter: 'blur(16px)',
@@ -62,8 +96,8 @@ const ServiceNode = ({ id, type, selected, isConnectable }) => {
             boxShadow: selected ? 'var(--shadow-glow), inset 0 0 20px var(--accent-glass)' : 'var(--shadow-glass)',
             display: 'flex',
             alignItems: 'center',
-            padding: '12px 16px',
-            gap: '14px',
+            padding: '14px 18px', // Increased padding
+            gap: '16px', // Increased gap between icon and text
             position: 'relative',
             transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
             cursor: 'grab',
@@ -110,30 +144,28 @@ const ServiceNode = ({ id, type, selected, isConnectable }) => {
 
             {/* Icon */}
             <div style={{
-                color: selected ? '#fff' : 'var(--text-secondary)',
-                // Subtle colored background behind icon for 'pop'
-                background: selected ? 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))' : 'rgba(255,255,255,0.03)',
+                color: 'var(--text-secondary)',
+                // Subtle colored background behind icon
+                background: 'rgba(255,255,255,0.03)',
                 width: '36px',
                 height: '36px',
                 borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: selected ? '0 4px 12px rgba(59, 130, 246, 0.4)' : 'none',
+                boxShadow: 'none',
                 transition: 'all 0.3s ease',
             }}>
-                <IconComponent size={20} strokeWidth={selected ? 2 : 1.5} />
+                <IconComponent size={20} strokeWidth={1.5} />
             </div>
 
             {/* Content */}
-            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <div style={{
                     fontSize: '13px',
                     fontWeight: 500,
                     color: 'var(--text-primary)',
                     whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
                     letterSpacing: '0.01em'
                 }}>
                     {label}
@@ -179,9 +211,11 @@ const ServiceNode = ({ id, type, selected, isConnectable }) => {
                     e.preventDefault();
                     // Calculate handle position (Right side)
                     // Node is at node.x, node.y.
-                    // Handle is at node.x + 160, node.y + 30
-                    const handleX = node.x + 160;
-                    const handleY = node.y + 30;
+                    // Handle is at node.x + width, node.y + height/2
+                    const currentWidth = nodeRef.current ? nodeRef.current.offsetWidth : 160;
+                    const currentHeight = nodeRef.current ? nodeRef.current.offsetHeight : 60;
+                    const handleX = node.x + currentWidth;
+                    const handleY = node.y + (currentHeight / 2);
 
                     startLinking({
                         nodeId: id,

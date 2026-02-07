@@ -88,3 +88,21 @@ button {
 ::-webkit-scrollbar-corner {
   background: transparent;
 }
+
+@keyframes title-fade {
+  0% {
+    color: #00b4d8;
+  }
+
+  50% {
+    color: #caf0f8;
+  }
+
+  100% {
+    color: #00b4d8;
+  }
+}
+
+.animate-title {
+  animation: title-fade 12s infinite ease-in-out;
+}

@@ -62,6 +62,17 @@ export const CanvasProvider = ({ children }) => {
         });
     }, []);
 
+    const updateNodeDimensions = useCallback((id, { width, height }) => {
+        setNodes(prev => prev.map(node => {
+            if (node.id === id) {
+                // Only update if changed prevents infinite loops
+                if (node.width === width && node.height === height) return node;
+                return { ...node, width, height };
+            }
+            return node;
+        }));
+    }, []);
+
     const deleteNode = useCallback((nodeId) => {
         setNodes(prev => prev.filter(n => n.id !== nodeId));
         // Also remove connected edges
@@ -115,6 +126,7 @@ export const CanvasProvider = ({ children }) => {
         selectNode,
         deselectAll,
         addNode,
+        updateNodeDimensions,
         addEdge,
         deleteNode,
         deleteNodes,

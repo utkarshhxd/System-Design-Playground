@@ -80,6 +80,8 @@ const Sidebar = () => {
     const [customComponents, setCustomComponents] = React.useState([]);
     const [showCustomForm, setShowCustomForm] = React.useState(false);
     const [customName, setCustomName] = React.useState('');
+    const [customType, setCustomType] = React.useState('');
+    const [isManualType, setIsManualType] = React.useState(false);
     const [selectedIconName, setSelectedIconName] = React.useState('Hexagon');
 
     // Default collapsed
@@ -107,8 +109,17 @@ const Sidebar = () => {
     const handleAddCustomComponent = () => {
         if (!customName.trim()) return;
 
+        const typeId = customType.trim() || customName.toLowerCase().replace(/\s+/g, '_');
+
+        // Check for duplicates
+        if (customComponents.some(c => c.type === typeId) ||
+            Object.values(CATEGORIES).flat().some(c => c.type === typeId)) {
+            alert('A component with this type ID already exists. Please choose a unique type.');
+            return;
+        }
+
         const newComponent = {
-            type: 'custom_' + Date.now(), // Unique type
+            type: typeId,
             label: customName,
             icon: selectedIconName || 'Hexagon', // Store string name
         };
@@ -119,6 +130,8 @@ const Sidebar = () => {
 
         // Reset form
         setCustomName('');
+        setCustomType('');
+        setIsManualType(false);
         setSelectedIconName('Hexagon');
         setShowCustomForm(false);
         setExpanded(prev => ({ ...prev, 'Custom': true }));
@@ -181,100 +194,35 @@ const Sidebar = () => {
                 zIndex: 10
             }}>
                 <div style={{
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    color: 'var(--text-primary)',
-                    marginBottom: '12px',
+                    marginBottom: '16px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    gap: '8px'
                 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <ICONS.Cloud size={16} color="var(--accent-primary)" />
-                        System Design
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{
+                            fontSize: '18px',
+                            fontWeight: 800,
+                            letterSpacing: '-0.02em',
+                            color: '#3b82f6',
+                        }}>
+                            System Design
+                        </span>
+                        <span style={{
+                            fontSize: '12px',
+                            fontWeight: 500,
+                            color: '#ffffff',
+                            letterSpacing: '0.2em',
+                            textTransform: 'uppercase',
+                            marginTop: '2px',
+                            opacity: 0.9
+                        }}>
+                            Playground
+                        </span>
                     </div>
-                    <button
-                        onClick={() => setShowCustomForm(!showCustomForm)}
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            color: 'var(--accent-primary)',
-                            cursor: 'pointer',
-                            padding: '4px',
-                            borderRadius: '4px',
-                            display: 'flex', alignItems: 'center'
-                        }}
-                        title="Add Custom Component"
-                        onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-canvas)'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                    >
-                        <ICONS.Plus size={16} />
-                    </button>
                 </div>
 
-                {/* Custom Component Form */}
-                {showCustomForm && (
-                    <div style={{
-                        marginBottom: '12px',
-                        padding: '12px',
-                        backgroundColor: 'var(--bg-canvas)',
-                        borderRadius: '8px',
-                        border: '1px solid var(--border-subtle)',
-                        display: 'flex', flexDirection: 'column', gap: '8px'
-                    }}>
-                        <input
-                            type="text"
-                            placeholder="Component Name"
-                            value={customName}
-                            onChange={(e) => setCustomName(e.target.value)}
-                            style={{
-                                width: '100%', padding: '6px', fontSize: '12px',
-                                borderRadius: '4px', border: '1px solid var(--border-subtle)',
-                                backgroundColor: 'var(--bg-panel)', color: 'var(--text-primary)',
-                                outline: 'none'
-                            }}
-                        />
-                        <select
-                            value={selectedIconName}
-                            onChange={(e) => setSelectedIconName(e.target.value)}
-                            style={{
-                                width: '100%', padding: '6px', fontSize: '12px',
-                                borderRadius: '4px', border: '1px solid var(--border-subtle)',
-                                backgroundColor: 'var(--bg-panel)', color: 'var(--text-primary)',
-                                outline: 'none'
-                            }}
-                        >
-                            {ICON_NAMES.map(name => (
-                                <option key={name} value={name}>{name}</option>
-                            ))}
-                        </select>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                            <button
-                                onClick={() => setShowCustomForm(false)}
-                                style={{
-                                    padding: '4px 8px', fontSize: '11px',
-                                    borderRadius: '4px', border: '1px solid var(--border-subtle)',
-                                    background: 'transparent', color: 'var(--text-secondary)',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleAddCustomComponent}
-                                style={{
-                                    padding: '4px 8px', fontSize: '11px',
-                                    borderRadius: '4px', border: 'none',
-                                    backgroundColor: 'var(--accent-primary)', color: '#fff',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Add
-                            </button>
-                        </div>
-                    </div>
-                )}
+
 
                 <div style={{ position: 'relative' }}>
                     <ICONS.Search
@@ -306,6 +254,171 @@ const Sidebar = () => {
                         onFocus={(e) => e.target.style.borderColor = 'var(--accent-primary)'}
                         onBlur={(e) => e.target.style.borderColor = 'var(--border-subtle)'}
                     />
+                </div>
+
+                <button
+                    onClick={() => setShowCustomForm(!showCustomForm)}
+                    style={{
+                        width: '100%',
+                        padding: '10px',
+                        marginTop: '12px',
+                        backgroundColor: showCustomForm ? 'var(--bg-canvas)' : 'var(--accent-primary)',
+                        color: showCustomForm ? 'var(--text-primary)' : '#fff',
+                        border: showCustomForm ? '1px solid var(--border-subtle)' : 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        transition: 'all 0.2s ease',
+                        boxShadow: showCustomForm ? 'none' : '0 2px 4px rgba(0,0,0,0.2)'
+                    }}
+                    onMouseEnter={(e) => {
+                        if (!showCustomForm) e.currentTarget.style.opacity = '0.9';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.opacity = '1';
+                    }}
+                >
+                    <ICONS.Plus size={16} />
+                    {showCustomForm ? 'Cancel Creation' : 'Create Component'}
+                </button>
+
+                {/* Custom Component Form */}
+                <div style={{
+                    maxHeight: showCustomForm ? '500px' : '0',
+                    opacity: showCustomForm ? 1 : 0,
+                    overflow: 'hidden',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    marginTop: showCustomForm ? '12px' : '0'
+                }}>
+                    <div style={{
+                        padding: '12px',
+                        backgroundColor: 'var(--bg-canvas)',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border-subtle)',
+                        display: 'flex', flexDirection: 'column', gap: '10px'
+                    }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500 }}>Name</label>
+                            <input
+                                type="text"
+                                placeholder="My Custom Component"
+                                value={customName}
+                                onChange={(e) => {
+                                    setCustomName(e.target.value);
+                                    if (!isManualType) {
+                                        setCustomType(e.target.value.toLowerCase().replace(/\s+/g, '_'));
+                                    }
+                                }}
+                                style={{
+                                    width: '100%', padding: '8px', fontSize: '13px',
+                                    borderRadius: '6px', border: '1px solid var(--border-subtle)',
+                                    backgroundColor: 'var(--bg-panel)', color: 'var(--text-primary)',
+                                    outline: 'none'
+                                }}
+                                onFocus={(e) => e.target.style.borderColor = 'var(--accent-primary)'}
+                                onBlur={(e) => e.target.style.borderColor = 'var(--border-subtle)'}
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500 }}>Type ID (Internal)</label>
+                            <input
+                                type="text"
+                                placeholder="my_component_id"
+                                value={customType}
+                                onChange={(e) => {
+                                    setCustomType(e.target.value);
+                                    setIsManualType(true);
+                                }}
+                                style={{
+                                    width: '100%', padding: '8px', fontSize: '13px',
+                                    borderRadius: '6px', border: '1px solid var(--border-subtle)',
+                                    backgroundColor: 'var(--bg-panel)', color: 'var(--text-primary)',
+                                    outline: 'none',
+                                    fontFamily: 'monospace'
+                                }}
+                                onFocus={(e) => e.target.style.borderColor = 'var(--accent-primary)'}
+                                onBlur={(e) => e.target.style.borderColor = 'var(--border-subtle)'}
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500 }}>Icon</label>
+                            <div className="custom-scrollbar" style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(36px, 1fr))',
+                                gap: '8px',
+                                maxHeight: '180px',
+                                overflowY: 'auto',
+                                padding: '8px',
+                                backgroundColor: 'var(--bg-panel)',
+                                border: '1px solid var(--border-subtle)',
+                                borderRadius: '6px'
+                            }}>
+                                {ICON_NAMES.map(name => {
+                                    const Icon = getIcon(name);
+                                    const isSelected = selectedIconName === name;
+                                    return (
+                                        <button
+                                            key={name}
+                                            onClick={() => setSelectedIconName(name)}
+                                            title={name}
+                                            style={{
+                                                width: '36px',
+                                                height: '36px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                backgroundColor: isSelected ? 'var(--accent-primary)' : 'var(--bg-canvas)',
+                                                color: isSelected ? '#fff' : 'var(--text-secondary)',
+                                                border: isSelected ? 'none' : '1px solid var(--border-subtle)',
+                                                borderRadius: '6px',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.1s ease',
+                                                outline: 'none'
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                if (!isSelected) {
+                                                    e.currentTarget.style.borderColor = 'var(--text-secondary)';
+                                                    e.currentTarget.style.color = 'var(--text-primary)';
+                                                }
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                if (!isSelected) {
+                                                    e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                                                    e.currentTarget.style.color = 'var(--text-secondary)';
+                                                }
+                                            }}
+                                        >
+                                            <Icon size={18} strokeWidth={1.5} />
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
+                            <button
+                                onClick={handleAddCustomComponent}
+                                style={{
+                                    width: '100%',
+                                    padding: '8px', fontSize: '12px', fontWeight: 600,
+                                    borderRadius: '6px', border: 'none',
+                                    backgroundColor: 'var(--accent-primary)', color: '#fff',
+                                    cursor: 'pointer',
+                                    opacity: customName.trim() ? 1 : 0.5,
+                                    pointerEvents: customName.trim() ? 'auto' : 'none'
+                                }}
+                            >
+                                Save Component
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -349,11 +462,14 @@ const Sidebar = () => {
                                     </span>
                                 </div>
                                 <span style={{
-                                    fontSize: '10px',
-                                    color: 'var(--text-dim)',
-                                    backgroundColor: 'rgba(255,255,255,0.05)',
-                                    padding: '2px 6px',
-                                    borderRadius: '10px'
+                                    fontSize: '11px',
+                                    color: 'var(--text-primary)',
+                                    backgroundColor: 'rgba(255,255,255,0.1)',
+                                    padding: '2px 8px',
+                                    borderRadius: '12px',
+                                    fontWeight: 600,
+                                    minWidth: '20px',
+                                    textAlign: 'center'
                                 }}>
                                     {items.length}
                                 </span>

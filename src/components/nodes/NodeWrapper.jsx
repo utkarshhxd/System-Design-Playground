@@ -97,12 +97,7 @@ const NodeWrapper = ({ id, x, y, isSelected, children }) => {
             >
                 <div style={{
                     position: 'relative',
-                    borderRadius: '8px',
-                    boxShadow: isSelected
-                        ? '0 0 0 2px var(--accent-primary), 0 8px 16px rgba(0,0,0,0.5)'
-                        : '0 2px 4px rgba(0,0,0,0.2), 0 0 0 1px var(--border-subtle)',
-                    backgroundColor: 'var(--bg-node)',
-                    transition: 'box-shadow 0.1s ease',
+                    // Styling moved to ServiceNode to avoid double outlines
                 }}>
 
                     {children}

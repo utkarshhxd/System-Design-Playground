@@ -1,89 +1,79 @@
 # System Design Playground
 
-A professional-grade, interactive system design tool built with **React 19** and **Vite**. This application allows users to create, visualize, and experiment with software architecture diagrams using a drag-and-drop interface.
+![System Design Playground](https://img.shields.io/badge/System_Design-Playground-3b82f6?style=for-the-badge&logo=react&logoColor=white)
 
-## 🚀 Features
+A powerful, interactive, and beautifully designed canvas for visualizing system architectures. Built with **React** and **Vite**, this tool allows you to drag, drop, and connect components to create professional-grade system diagrams directly in your browser.
 
-- **Interactive Infinite Canvas**: A smooth, high-performance canvas environment for building large-scale diagrams.
-- **Drag-and-Drop Component Library**:
-  - **Core Components**: Client, API Server, Database, Load Balancer, Cache, Message Queue.
-  - **Infrastructure**: CDN, Firewall, Object Storage, Event Stream, DNS.
-- **Dynamic Connections**: Link components together to visualize data flow and architectural dependencies.
-- **Properties Panel**: Customize specific attributes of selected nodes (e.g., database type, server capacity).
-- **Keyboard Shortcuts**:
-  - `Delete` / `Backspace`: Remove selected nodes or connections.
-- **Premium UI**: deeply integrated dark mode aesthetics with glassmorphism effects and refined typography.
+## ✨ Features
 
-## 🛠️ Tech Stack
+-   **Interactive Canvas**: Infinite pan and zoom capabilities for complex diagrams.
+-   **Extensive Component Library**: Includes 100+ pre-built icons for:
+    -   **Cloud Infrastructure** (AWS, Azure, GCP icons)
+    -   **Databases & Storage** (SQL, NoSQL, File Storage)
+    -   **Networking** (Load Balancers, CDNs, Firewalls)
+    -   **DevOps & Tools** (Docker, K8s, Git)
+-   **Custom Components**: Create your own reusable components with a visual icon selector.
+-   **Smart Connections**: Smooth, bezier curve connections that automatically snap to node edges.
+-   **Modern UI**: Sleek, dark-themed interface with card-based property panels and a clean aesthetic.
+-   **Properties Editor**: detailed sidebar for editing node and connection metadata.
 
-- **Framework**: [React 19](https://react.dev/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **Styling**: Vanilla CSS (Variables & Modules) for high-performance rendering.
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Linting**: ESLint + React Hooks & Refresh plugins.
-
-## 📦 Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
-Ensure you have **Node.js** (v16+) installed on your machine.
+-   Node.js (v16 or higher)
+-   npm or yarn
 
 ### Installation
 
-1.  Clone the repository:
+1.  **Clone the repository**
     ```bash
     git clone https://github.com/yourusername/system-design-playground.git
     cd system-design-playground
     ```
 
-2.  Install dependencies:
+2.  **Install dependencies**
     ```bash
     npm install
+    # or
+    yarn install
     ```
 
-### Running the Application
+3.  **Run the development server**
+    ```bash
+    npm run dev
+    # or
+    yarn dev
+    ```
 
-Start the development server:
-```bash
-npm run dev
-```
-Open your browser and navigate to `http://localhost:5173` (or the port shown in the terminal).
+4.  Open your browser and navigate to `http://localhost:5173`.
 
-### Building for Production
+## 🛠️ Built With
 
-To create a production-ready build:
-```bash
-npm run build
-```
-Preview the production build locally:
-```bash
-npm run preview
-```
+-   **[React 19](https://react.dev/)**: The library for web and native user interfaces.
+-   **[Vite](https://vitejs.dev/)**: Next Generation Frontend Tooling.
+-   **[Lucide React](https://lucide.dev/)**: Beautiful & consistent icons.
+-   **CSS Variables**: For a consistent, customizable theme system.
 
-## 📂 Project Structure
+## 🎨 Controls
 
-```bash
-src/
-├── canvas/           # Core canvas logic (connection layers, grid, controls)
-├── components/       # UI and Node components
-│   ├── nodes/        # Individual architecture node definitions (Service, db, etc.)
-│   └── ui/           # Sidebar, Properties Panel, and common UI elements
-├── context/          # React Context providers (Canvas state management)
-├── hooks/            # Custom hooks for interaction logic
-├── styles/           # Global styles and mixins
-├── App.jsx           # Main application layout
-└── main.jsx          # Entry point
-```
+-   **Drag & Drop**: Drag components from the sidebar onto the canvas.
+-   **Connect**: Click on a node's handle (dot) and drag to another node to create a connection.
+-   **Select**: Click on a node or connection to view its properties.
+-   **Delete**: Select an item and press `Delete` or `Backspace`.
+-   **Pan**: Click and drag on an empty area of the canvas.
+-   **Zoom**: Use the scroll wheel to zoom in and out.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
-1.  Fork the repository.
-2.  Create a feature branch (`git checkout -b feature/AmazingFeature`).
-3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-4.  Push to the branch (`git push origin feature/AmazingFeature`).
-5.  Open a Pull Request.
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1.  Fork the project
+2.  Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
 
 ## 📄 License
 
-[MIT](LICENSE)
+This project is open source and available under the [MIT License](LICENSE).

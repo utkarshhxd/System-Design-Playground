@@ -10,12 +10,14 @@ const ConnectionLayer = () => {
         const node = nodes.find(n => n.id === nodeId);
         if (!node) return { x: 0, y: 0 };
 
-        // Hardcoded dimensions matching ServiceNode
-        // Width 160, Vertical center is roughly +30
+        // Use dynamic dimensions if available, fallback to defaults
+        const width = node.width || 160;
+        const height = node.height || 60;
+
         if (handleType === 'source') {
-            return { x: node.x + 160, y: node.y + 30 }; // Right side
+            return { x: node.x + width, y: node.y + (height / 2) }; // Right side
         } else {
-            return { x: node.x, y: node.y + 30 }; // Left side
+            return { x: node.x, y: node.y + (height / 2) }; // Left side
         }
     };
 
@@ -64,11 +66,11 @@ const ConnectionLayer = () => {
             zIndex: 'var(--z-edge)',
         }}>
             <defs>
-                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                    <polygon points="0 0, 10 3.5, 0 7" fill="var(--text-dim)" opacity="0.6" />
+                <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                    <path d="M0,0 L8,4 L0,8 Z" fill="var(--text-dim)" opacity="0.6" />
                 </marker>
-                <marker id="arrowhead-active" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                    <polygon points="0 0, 10 3.5, 0 7" fill="var(--accent-primary)" />
+                <marker id="arrowhead-active" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                    <path d="M0,0 L8,4 L0,8 Z" fill="var(--accent-primary)" />
                 </marker>
             </defs>
 
