@@ -55,7 +55,7 @@ const NodeWrapper = ({ id, x, y, isSelected, children }) => {
             const dy = (moveEvent.clientY - startY) / transform.k;
 
             // Snap logic
-            const SNAP = 20;
+            const SNAP = 1;
             const rawX = initialX + dx;
             const rawY = initialY + dy;
 
